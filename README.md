@@ -18,7 +18,7 @@ A PHP-based service for managing user credits and transactions with comprehensiv
 
 ## 🚀 Requirements
 
-- PHP 7.4+
+- PHP 8.0+
 - Composer
 - MySQL/MariaDB
 - Redis
