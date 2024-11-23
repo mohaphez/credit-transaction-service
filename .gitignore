@@ -2,6 +2,7 @@
 .env.local
 .env.*
 !.env.example
+!.env.testing
 /vendor/
 composer.lock
 /var/cache/*
