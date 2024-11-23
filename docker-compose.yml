@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: www-data
+        uid: 1000
+    container_name: credit_transaction_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    depends_on:
+      - db
+      - redis
+    networks:
+      - credit_network
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=credit_transactions
+      - DB_USERNAME=credit_user
+      - DB_PASSWORD=credit_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - APP_ENV=dev
+
+  db:
+    image: mysql:8.0
+    container_name: credit_transaction_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: credit_transactions
+      MYSQL_USER: credit_user
+      MYSQL_PASSWORD: credit_password
+      MYSQL_ROOT_PASSWORD: root_password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - credit_network
+
+  redis:
+    image: redis:alpine
+    container_name: credit_transaction_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - credit_network
+
+networks:
+  credit_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  redisdata:
+    driver: local
